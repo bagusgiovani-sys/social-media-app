@@ -7,6 +7,7 @@ import { useState } from "react";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import ProfileTabs from "@/components/profile/ProfileTabs";
 import FollowListModal from "@/components/modals/FollowListModal";
+import { motion } from "framer-motion";
 
 type FollowModal = "followers" | "following" | null;
 
@@ -24,15 +25,16 @@ export default function PublicProfilePage({ params }: Props) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen" style={{ background: "#0a0a0a" }}>
+      <div className="flex items-center justify-center min-h-screen bg-bg">
         <div className="w-7 h-7 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
-  if (!profileData) return <div className="text-center py-20 text-zinc-500">User not found.</div>;
+  if (!profileData) return (
+    <div className="text-center py-20 text-zinc-500">User not found.</div>
+  );
 
-  // Normalize API shape → ProfileHeader shape
   const profile = {
     id: profileData.id,
     name: profileData.name,
@@ -51,19 +53,36 @@ export default function PublicProfilePage({ params }: Props) {
   const isMyProfile = me?.username === username;
 
   return (
-    <div style={{ background: "#0a0a0a", minHeight: "100vh" }}>
-      <ProfileHeader
-        profile={profile}
-        isMyProfile={isMyProfile}
-        onFollowersClick={() => setFollowModal("followers")}
-        onFollowingClick={() => setFollowModal("following")}
-      />
+    <motion.div
+      className="bg-bg min-h-screen"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.05 }}
+      >
+        <ProfileHeader
+          profile={profile}
+          isMyProfile={isMyProfile}
+          onFollowersClick={() => setFollowModal("followers")}
+          onFollowingClick={() => setFollowModal("following")}
+        />
+      </motion.div>
 
-      <ProfileTabs
-        posts={posts}
-        likedPosts={likedPosts}
-        isMyProfile={isMyProfile}
-      />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
+      >
+        <ProfileTabs
+          posts={posts}
+          likedPosts={likedPosts}
+          isMyProfile={isMyProfile}
+        />
+      </motion.div>
 
       <FollowListModal
         open={followModal !== null}
@@ -71,6 +90,6 @@ export default function PublicProfilePage({ params }: Props) {
         username={username}
         onClose={() => setFollowModal(null)}
       />
-    </div>
+    </motion.div>
   );
 }
