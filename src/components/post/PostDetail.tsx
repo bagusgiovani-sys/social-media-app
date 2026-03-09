@@ -18,6 +18,8 @@ interface Props {
   onClose?: () => void;
 }
 
+const ease = [0.22, 1, 0.36, 1] as const;
+
 export default function PostDetail({ post, onClose }: Props) {
   const router = useRouter();
   const { user, isAuthenticated } = useAppSelector((s) => s.auth);
@@ -25,7 +27,7 @@ export default function PostDetail({ post, onClose }: Props) {
   const { mutate: toggleSave, isPending: savePending } = useToggleSave(post.id);
   const { mutate: deletePost, isPending: deletePending } = useDeletePost();
   const { data: livePost } = usePost(post.id, post);
-  const p = livePost ?? post; // use live data when available
+  const p = livePost ?? post;
   const [likesOpen, setLikesOpen] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const isOwner = user?.id === p.author?.id;
@@ -52,33 +54,46 @@ export default function PostDetail({ post, onClose }: Props) {
   return (
     <>
       {/* ── PC: Side-by-side layout ── */}
-      <div className="hidden md:flex h-[90vh] max-h-[700px] w-full max-w-5xl mx-auto rounded-2xl overflow-hidden"
-        style={{ background: "#0a0a0a" }}
+      <motion.div
+        className="hidden md:flex h-[90vh] max-h-[700px] w-full max-w-5xl mx-auto rounded-2xl overflow-hidden bg-[#0a0a0a]"
+        initial={{ opacity: 0, scale: 0.97, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.4, ease }}
       >
         {/* Left: image */}
-        <div className="flex-1 bg-black flex items-center justify-center">
+        <motion.div
+          className="flex-1 bg-black flex items-center justify-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.1, duration: 0.4 }}
+        >
           <img src={p.imageUrl} alt={p.caption ?? "Post"} className="w-full h-full object-cover" />
-        </div>
+        </motion.div>
 
         {/* Right: details + comments */}
-        <div className="w-[380px] shrink-0 flex flex-col" style={{ background: "#111111" }}>
-          {/* Close */}
+        <motion.div
+          className="w-[380px] shrink-0 flex flex-col bg-[#111111]"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.12, duration: 0.4, ease }}
+        >
           <div className="flex justify-end p-3">
             <button onClick={handleClose} className="text-zinc-400 hover:text-white transition-colors">
               <X size={20} />
             </button>
           </div>
 
-          {/* Author + caption */}
-          <div className="px-5 pb-4 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+          <motion.div
+            className="px-5 pb-4 border-b border-white/[0.08]"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.35, ease }}
+          >
             <div className="flex items-center justify-between mb-3">
-              <div
-                className="flex items-center gap-2.5 cursor-pointer"
-                onClick={() => router.push(`/profile/${p.author?.username}`)}
-              >
+              <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => router.push(`/profile/${p.author?.username}`)}>
                 <div className="w-9 h-9 rounded-full overflow-hidden bg-zinc-800">
                   {p.author?.avatarUrl ? (
-                    <img src={p.author?.avatarUrl} alt={p.author?.name} className="w-full h-full object-cover" />
+                    <img src={p.author.avatarUrl} alt={p.author.name} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-white text-xs font-semibold">
                       {p.author?.name.charAt(0).toUpperCase()}
@@ -98,18 +113,13 @@ export default function PostDetail({ post, onClose }: Props) {
                   <AnimatePresence>
                     {showMenu && (
                       <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        className="absolute right-0 mt-1 rounded-xl overflow-hidden shadow-xl z-10"
-                        style={{ background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.08)" }}
+                        initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                        transition={{ duration: 0.18 }}
+                        className="absolute right-0 mt-1 rounded-xl overflow-hidden shadow-xl z-10 bg-[#1a1a1a] border border-white/[0.08]"
                       >
-                        <button
-                          onClick={handleDelete}
-                          disabled={deletePending}
-                          className="block w-full px-5 py-2.5 text-sm text-left hover:bg-zinc-800 transition-colors"
-                          style={{ color: "#D9206E" }}
-                        >
+                        <button onClick={handleDelete} disabled={deletePending} className="block w-full px-5 py-2.5 text-sm text-left text-[#D9206E] hover:bg-zinc-800 transition-colors">
                           Delete Post
                         </button>
                       </motion.div>
@@ -118,21 +128,22 @@ export default function PostDetail({ post, onClose }: Props) {
                 </div>
               )}
             </div>
-            {p.caption && (
-              <p className="text-white text-sm leading-relaxed">{p.caption}</p>
-            )}
-          </div>
+            {p.caption && <p className="text-white text-sm leading-relaxed">{p.caption}</p>}
+          </motion.div>
 
-          {/* Comments */}
           <div className="flex-1 overflow-hidden flex flex-col">
             <CommentSection postId={post.id} />
           </div>
 
-          {/* Actions row */}
-          <div className="flex items-center justify-between px-5 py-3 border-t" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+          <motion.div
+            className="flex items-center justify-between px-5 py-3 border-t border-white/[0.08]"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.28, duration: 0.35, ease }}
+          >
             <div className="flex items-center gap-4">
               <motion.button whileTap={{ scale: 0.85 }} onClick={handleLike} disabled={likePending} className="flex items-center gap-1.5">
-                <Heart size={20} style={p.likedByMe ? { fill: "#D9206E", color: "#D9206E" } : { color: "white" }} />
+                <Heart size={20} className={p.likedByMe ? "fill-[#D9206E] text-[#D9206E]" : "text-white"} />
                 <span className="text-white text-sm">{p.likeCount ?? 0}</span>
               </motion.button>
               <button className="flex items-center gap-1.5">
@@ -144,23 +155,24 @@ export default function PostDetail({ post, onClose }: Props) {
               </button>
             </div>
             <motion.button whileTap={{ scale: 0.85 }} onClick={handleSave} disabled={savePending}>
-              <Bookmark size={20} style={p.savedByMe ? { fill: "white", color: "white" } : { color: "white" }} />
+              <Bookmark size={20} className={p.savedByMe ? "fill-white text-white" : "text-white"} />
             </motion.button>
-          </div>
-        </div>
-      </div>
+          </motion.div>
+        </motion.div>
+      </motion.div>
 
-      {/* ── Mobile: Bottom sheet ── */}
-      <div className="md:hidden flex flex-col" style={{ background: "#0a0a0a" }}>
-        {/* Post header + image */}
-        <div className="relative">
+      {/* ── Mobile: stacked layout ── */}
+      <div className="md:hidden flex flex-col bg-[#0a0a0a]">
+        <motion.div
+          className="relative"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, ease }}
+        >
           <div className="flex items-center gap-3 px-4 py-3">
-            <div
-              className="cursor-pointer w-9 h-9 rounded-full overflow-hidden bg-zinc-800 shrink-0"
-              onClick={() => router.push(`/profile/${p.author?.username}`)}
-            >
+            <div className="cursor-pointer w-9 h-9 rounded-full overflow-hidden bg-zinc-800 shrink-0" onClick={() => router.push(`/profile/${p.author?.username}`)}>
               {p.author?.avatarUrl ? (
-                <img src={p.author?.avatarUrl} alt={p.author?.name} className="w-full h-full object-cover" />
+                <img src={p.author.avatarUrl} alt={p.author.name} className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-white text-xs font-semibold">
                   {p.author?.name.charAt(0).toUpperCase()}
@@ -173,39 +185,46 @@ export default function PostDetail({ post, onClose }: Props) {
             </div>
           </div>
 
-          <img src={p.imageUrl} alt={p.caption ?? "Post"} className="w-full object-cover" style={{ maxHeight: "40vh" }} />
+          <motion.img
+            src={p.imageUrl}
+            alt={p.caption ?? "Post"}
+            className="w-full object-cover max-h-[40vh]"
+            initial={{ opacity: 0, scale: 1.02 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.08, duration: 0.4, ease }}
+          />
 
-          {/* Actions over image bottom */}
-          <div className="flex items-center justify-between px-4 py-3">
+          <motion.div
+            className="flex items-center justify-between px-4 py-3"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.18, duration: 0.3 }}
+          >
             <div className="flex items-center gap-4">
               <motion.button whileTap={{ scale: 0.85 }} onClick={handleLike} disabled={likePending} className="flex items-center gap-1.5">
-                <Heart size={20} style={p.likedByMe ? { fill: "#D9206E", color: "#D9206E" } : { color: "white" }} />
+                <Heart size={20} className={p.likedByMe ? "fill-[#D9206E] text-[#D9206E]" : "text-white"} />
                 <span className="text-white text-sm">{p.likeCount ?? 0}</span>
               </motion.button>
-              <button className="flex items-center gap-1.5" onClick={() => {}}>
+              <button className="flex items-center gap-1.5">
                 <MessageCircle size={20} className="text-white" />
                 <span className="text-white text-sm">{p.commentCount ?? 0}</span>
               </button>
               <button className="flex items-center gap-1.5">
                 <Send size={20} className="text-white" />
-                
               </button>
             </div>
             <motion.button whileTap={{ scale: 0.85 }} onClick={handleSave} disabled={savePending}>
-              <Bookmark size={20} style={p.savedByMe ? { fill: "white", color: "white" } : { color: "white" }} />
+              <Bookmark size={20} className={p.savedByMe ? "fill-white text-white" : "text-white"} />
             </motion.button>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
-        {/* Comments sheet */}
         <motion.div
           initial={{ y: "100%" }}
           animate={{ y: 0 }}
           transition={{ type: "spring", stiffness: 380, damping: 38 }}
-          className="rounded-t-2xl flex flex-col"
-          style={{ background: "#111111", minHeight: "50vh" }}
+          className="rounded-t-2xl flex flex-col bg-[#111111] min-h-[50vh]"
         >
-          {/* Close handle */}
           <div className="flex items-center justify-between px-5 pt-4 pb-2">
             <div />
             <button onClick={handleClose} className="text-zinc-400 hover:text-white transition-colors">
@@ -216,7 +235,6 @@ export default function PostDetail({ post, onClose }: Props) {
         </motion.div>
       </div>
 
-      {/* Likes modal */}
       <LikedByModal postId={post.id} open={likesOpen} onClose={() => setLikesOpen(false)} />
     </>
   );

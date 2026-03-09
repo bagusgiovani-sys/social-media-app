@@ -41,7 +41,7 @@ export default function BottomMenu() {
             : { y: 0, opacity: 1, scale: 1 }
           }
           transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-          className="flex items-center gap-1 p-1 rounded-full bg-[#111111] border border-white/[0.08]"
+          className="flex items-center gap-3 p-1.5 px-2.5 mb-8 md:mb-0 rounded-full bg-[#111111] border border-white/[0.08]"
         >
           {/* Home */}
           {[{ key: "home", label: "Home", icon: Home, onClick: () => router.push("/feed") }].map(({ key, label, icon: Icon, onClick }) => {
@@ -72,7 +72,7 @@ export default function BottomMenu() {
             onHoverStart={() => setPlusHovered(true)}
             onHoverEnd={() => setPlusHovered(false)}
             onClick={() => setCreateOpen(true)}
-            className="flex items-center justify-center rounded-full overflow-hidden cursor-pointer h-11 bg-violet-800/60 mx-1"
+            className="flex items-center justify-center rounded-full overflow-hidden cursor-pointer h-11 bg-violet-800/60 mx-1 hover:bg-red-600"
             animate={{ width: plusHovered ? "120px" : "44px" }}
             transition={{ duration: 0.25, ease: "easeInOut" }}
           >
