@@ -1,6 +1,6 @@
 "use client";
 
-import { authApi } from "@/lib/api/utils";
+import { authApi } from "@/lib/api/auth";
 import { useAppDispatch } from "@/store";
 import { setCredentials } from "@/store/slices/authSlice";
 import { loginSchema, LoginFormData } from "@/schemas/auth.schema";
