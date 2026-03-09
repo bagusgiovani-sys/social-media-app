@@ -72,7 +72,7 @@ export default function BottomMenu() {
             onHoverStart={() => setPlusHovered(true)}
             onHoverEnd={() => setPlusHovered(false)}
             onClick={() => setCreateOpen(true)}
-            className="flex items-center justify-center rounded-full overflow-hidden cursor-pointer h-11 bg-violet-800/60 mx-1 hover:bg-red-600"
+            className="flex items-center justify-center rounded-full overflow-hidden cursor-pointer h-11 bg-violet-800/60 mx-1 hover:bg-pink-700"
             animate={{ width: plusHovered ? "120px" : "44px" }}
             transition={{ duration: 0.25, ease: "easeInOut" }}
           >

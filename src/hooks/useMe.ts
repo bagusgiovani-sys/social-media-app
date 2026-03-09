@@ -46,7 +46,8 @@ export function useMyLikes(page = 1) {
     queryKey: ["me", "likes", page],
     queryFn: async () => {
       const res = await meApi.getMyLikes(page);
-      return res.data;
+      const inner = res.data?.data;
+      return Array.isArray(inner?.posts) ? inner.posts : Array.isArray(inner?.items) ? inner.items : [];
     },
   });
 }

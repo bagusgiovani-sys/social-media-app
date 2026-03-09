@@ -24,6 +24,7 @@ interface Props {
   onEditClick?: () => void;
   onFollowersClick?: () => void;
   onFollowingClick?: () => void;
+  onLikesClick?: () => void;
 }
 
 export default function ProfileHeader({
@@ -32,6 +33,7 @@ export default function ProfileHeader({
   onEditClick,
   onFollowersClick,
   onFollowingClick,
+  onLikesClick,
 }: Props) {
   const router = useRouter();
   const { mutate: toggleFollow, isPending } = useToggleFollow(profile.username);
@@ -40,11 +42,11 @@ export default function ProfileHeader({
     { label: "Post", value: profile.postsCount ?? 0, onClick: undefined },
     { label: "Followers", value: profile.followersCount ?? 0, onClick: onFollowersClick },
     { label: "Following", value: profile.followingCount ?? 0, onClick: onFollowingClick },
-    { label: "Likes", value: profile.likesCount ?? 0, onClick: undefined },
+    { label: "Likes", value: profile.likesCount ?? 0, onClick: isMyProfile ? onLikesClick : undefined },
   ];
 
   return (
-    <div style={{ background: "#0a0a0a" }}>
+    <div className="bg-[#0a0a0a]">
       {/* Mobile header bar */}
       <div className="flex items-center justify-between px-4 h-14 md:hidden">
         <button onClick={() => router.back()} className="text-white">
@@ -56,7 +58,6 @@ export default function ProfileHeader({
 
       {/* Profile info */}
       <div className="px-4 md:px-0 pt-2 md:pt-6 pb-2 max-w-2xl md:mx-auto">
-        {/* Avatar + name + action */}
         <div className="flex items-center gap-3 mb-3">
           <div className="w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden bg-zinc-800 shrink-0">
             {profile.avatarUrl ? (
@@ -73,7 +74,6 @@ export default function ProfileHeader({
             <p className="text-zinc-500 text-sm">{profile.username}</p>
           </div>
 
-          {/* Actions */}
           <div className="flex items-center gap-2 shrink-0">
             {isMyProfile ? (
               <button
@@ -96,34 +96,30 @@ export default function ProfileHeader({
                 whileTap={{ scale: 0.96 }}
                 onClick={() => toggleFollow(false)}
                 disabled={isPending}
-                className="px-6 py-2 rounded-full text-sm font-bold text-white transition-opacity disabled:opacity-50"
-                style={{ background: "#7C3AED" }}
+                className="px-6 py-2 rounded-full text-sm font-bold text-white bg-[#7C3AED] transition-opacity disabled:opacity-50"
               >
                 Follow
               </motion.button>
             )}
 
-            {/* Share icon */}
             <button className="w-9 h-9 flex items-center justify-center rounded-full border border-zinc-700 text-white hover:border-zinc-500 transition-colors">
               <Send size={15} />
             </button>
           </div>
         </div>
 
-        {/* Bio */}
         {profile.bio && (
           <p className="text-white text-sm leading-relaxed mb-4">{profile.bio}</p>
         )}
 
         {/* Stats */}
-        <div className="grid grid-cols-4 border-t border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+        <div className="grid grid-cols-4 border-t border-b border-white/[0.08]">
           {stats.map((stat, i) => (
             <button
               key={stat.label}
               onClick={stat.onClick}
               disabled={!stat.onClick}
-              className={`flex flex-col items-center py-3 transition-colors ${stat.onClick ? "hover:bg-zinc-900 cursor-pointer" : "cursor-default"} ${i < 3 ? "border-r" : ""}`}
-              style={{ borderColor: "rgba(255,255,255,0.08)" }}
+              className={`flex flex-col items-center py-3 transition-colors ${stat.onClick ? "hover:bg-zinc-900 cursor-pointer" : "cursor-default"} ${i < 3 ? "border-r border-white/[0.08]" : ""}`}
             >
               <span className="text-white font-bold text-base">{stat.value}</span>
               <span className="text-zinc-500 text-xs mt-0.5">{stat.label}</span>

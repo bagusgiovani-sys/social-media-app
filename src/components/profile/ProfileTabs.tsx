@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { LayoutGrid, Bookmark, Heart } from "lucide-react";
 import PostGrid from "@/components/post/PostGrid";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 
 interface Post {
@@ -18,16 +17,23 @@ interface Props {
   likedPosts?: Post[];
   isMyProfile?: boolean;
   onUploadClick?: () => void;
+  activeTab?: "gallery" | "saved" | "liked";
+  onTabChange?: (tab: "gallery" | "saved" | "liked") => void;
 }
 
-export default function ProfileTabs({ posts, savedPosts, likedPosts, isMyProfile, onUploadClick }: Props) {
-  const [tab, setTab] = useState<"gallery" | "saved" | "liked">("gallery");
-  const router = useRouter();
+export default function ProfileTabs({ posts, savedPosts, likedPosts, isMyProfile, onUploadClick, activeTab, onTabChange }: Props) {
+  const [internalTab, setInternalTab] = useState<"gallery" | "saved" | "liked">("gallery");
+  const tab = activeTab ?? internalTab;
+  const setTab = (t: "gallery" | "saved" | "liked") => {
+    setInternalTab(t);
+    onTabChange?.(t);
+  };
 
   const tabs = isMyProfile
     ? [
         { key: "gallery", label: "Gallery", icon: LayoutGrid },
         { key: "saved", label: "Saved", icon: Bookmark },
+        { key: "liked", label: "Liked", icon: Heart },
       ]
     : [
         { key: "gallery", label: "Gallery", icon: LayoutGrid },
@@ -39,29 +45,25 @@ export default function ProfileTabs({ posts, savedPosts, likedPosts, isMyProfile
 
   return (
     <div className="max-w-2xl md:mx-auto">
-      {/* Tab bar */}
-      <div className="flex border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+      <div className="flex border-b border-white/[0.08]">
         {tabs.map(({ key, label, icon: Icon }) => (
           <button
             key={key}
             onClick={() => setTab(key as any)}
-            className="relative flex-1 flex items-center justify-center gap-2 py-3 text-sm font-semibold transition-colors"
-            style={{ color: tab === key ? "white" : "#a3a3a3" }}
+            className={`relative flex-1 flex items-center justify-center gap-2 py-3 text-sm font-semibold transition-colors ${tab === key ? "text-white" : "text-[#a3a3a3]"}`}
           >
             <Icon size={16} />
             {label}
             {tab === key && (
               <motion.div
                 layoutId="profile-tab-indicator"
-                className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
-                style={{ background: "white" }}
+                className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full bg-white"
               />
             )}
           </button>
         ))}
       </div>
 
-      {/* Content */}
       <div className="mt-0.5">
         {activeData.length === 0 ? (
           <EmptyState isMyProfile={!!isMyProfile} tab={tab} onUploadClick={onUploadClick} />
@@ -89,8 +91,7 @@ function EmptyState({ isMyProfile, tab, onUploadClick }: {
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={onUploadClick}
-            className="px-8 py-3 rounded-full text-white text-sm font-bold"
-            style={{ background: "#7C3AED" }}
+            className="px-8 py-3 rounded-full text-white text-sm font-bold bg-[#7C3AED]"
           >
             Upload My First Post
           </motion.button>
