@@ -1,6 +1,6 @@
 "use client";
 
-import { authApi } from "@/lib/api/auth";
+import { authApi } from "@/lib/utils";
 import { registerSchema, RegisterFormData } from "@/schemas/auth.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
