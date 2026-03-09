@@ -61,12 +61,12 @@ export default function FeedPage() {
   }, [active.hasNextPage, active.isFetchingNextPage, tab]);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-[#000000]">
 
       {/* Floating Feed / Explore tabs */}
       <div className="sticky top-14 z-40 flex justify-center pt-3 pb-2 pointer-events-none">
         <div
-          className="flex items-center gap-1 p-1 mr-0 md:mr-8 my-1 rounded-full pointer-events-auto bg-[#111111] border border-white/[0.08]"
+          className="flex items-center gap-1 p-1 mr-0 md:mr-9 my-1 rounded-full pointer-events-auto bg-[#111111] border border-white/[0.08]"
         >
           {([
             { key: "feed", label: "Feed", icon: Home },

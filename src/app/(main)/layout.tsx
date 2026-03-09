@@ -118,7 +118,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   }, [isAuthenticated]);
 
   return (
-    <div className="min-h-screen bg-[#292929]">
+    <div className="min-h-screen bg-[#0a0a0a]]">
       <AnimatePresence>
         {showSplash && <SplashScreen key="splash" onDone={() => setShowSplash(false)} />}
       </AnimatePresence>

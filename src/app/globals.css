@@ -1,9 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
-@variant dark (&:where(.dark, .dark *));
-
 @theme inline {
   /* ── Font ── */
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
@@ -59,80 +56,16 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-/* ── Auto dark mode (system preference, no .dark class needed) ── */
-@media (prefers-color-scheme: dark) {
-  :root:not(.light) {
-    --bg: rgb(0, 0, 0);
-    --bg-card: #111111;
-    --bg-hover: #9f9f9f;
-    --text-base: #f5f5f5;
-    --text-muted: #a3a3a3;
-    --border: oklch(1 0 0 / 10%);
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-  }
-}
-
-/* ── Light Mode ── */
+/* ── Dark Mode Only ── */
 :root {
-  --bg: #ffffff;
-  --bg-card: #f5f5f5;
-  --bg-hover: #ebebeb;
-  --text-base: #0a0a0a;
-  --text-muted: #737373;
-  --border: oklch(0.922 0 0);
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
-
-/* ── Dark Mode ── */
-.dark {
-  --bg: #292929;
+  --bg: #0a0a0a;
   --bg-card: #111111;
   --bg-hover: #1a1a1a;
   --text-base: #f5f5f5;
   --text-muted: #a3a3a3;
   --border: oklch(1 0 0 / 10%);
-  --background: oklch(0% 0 0);
+  --radius: 0.625rem;
+  --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
@@ -170,13 +103,12 @@
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
   }
   body {
-    @apply bg-background text-foreground;
     font-family: var(--font-sans);
     background-color: var(--bg);
     color: var(--text-base);
-    transition: background-color 0.2s ease, color 0.2s ease;
   }
 }
 
@@ -188,34 +120,3 @@
 
 /* ── Selection ── */
 ::selection { background: #7F51F9; color: #ffffff; }
-
-/* ── Light mode component overrides ── */
-.light body,
-:root:not(.dark) body {
-  background-color: #ffffff !important;
-  color: #0a0a0a !important;
-}
-
-.light [style*="background: #0a0a0a"],
-.light [style*="background:#0a0a0a"] {
-  background: #f5f5f5 !important;
-}
-
-.light [style*="background: \"#0a0a0a\""] {
-  background: #f5f5f5 !important;
-}
-
-/* Target inline styles via CSS vars fallback */
-.light {
-  --tw-bg-override: #ffffff;
-}
-
-/* Broad light mode sweep for hardcoded dark backgrounds */
-.light .min-h-screen,
-.light main {
-  background-color: #f5f5f5 !important;
-}
-
-.light nav {
-  background: #ffffff !important;
-}

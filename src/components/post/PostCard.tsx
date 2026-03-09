@@ -40,7 +40,7 @@ export default function PostCard({ post }: Props) {
       : post.caption;
 
   return (
-    <div className="w-full rounded-2xl overflow-hidden border border-zinc-900 bg-[#0a0a0a]">
+    <div className="w-full rounded-2xl overflow-hidden border border-zinc-800 bg-[#000000]">
       {/* Author row */}
       <div
         className="flex items-center gap-3 px-4 py-3 cursor-pointer"

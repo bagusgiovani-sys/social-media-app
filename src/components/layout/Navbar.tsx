@@ -87,7 +87,7 @@ export default function Navbar() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
         className={`sticky top-0 z-50 w-full border-b border-white/[0.08] transition-all duration-300 ${
-          scrolled ? "bg-violet-800/10 backdrop-blur-xl" : "bg-zinc-800/50"
+          scrolled ? "bg-zinc-600/10 backdrop-blur-xl" : "bg-zinc-800/50"
         }`}
       >
         <div className="mx-auto flex h-14 max-w-screen-xl items-center justify-between px-4 md:px-6">
@@ -108,7 +108,7 @@ export default function Navbar() {
 
           {/* PC: Search bar */}
           <motion.div
-            className="hidden md:flex items-center gap-2 rounded-full px-4 py-2 ml-10 mr-4 bg-[#1a1a1a] overflow-hidden"
+            className="hidden md:flex items-center gap-2 rounded-full px-4 py-2 left-1/2 bg-[#1a1a1a] overflow-hidden"
             animate={{ width: desktopSearchOpen ? "280px" : "140px" }}
             transition={{ duration: 0.25, ease: "easeInOut" }}
             whileHover={{ boxShadow: "0 0 0 1.5px rgba(124,58,237,0.5), 0 0 12px rgba(124,58,237,0.2)" }}
