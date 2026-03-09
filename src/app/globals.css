@@ -62,7 +62,7 @@
 /* ── Auto dark mode (system preference, no .dark class needed) ── */
 @media (prefers-color-scheme: dark) {
   :root:not(.light) {
-    --bg: #4e4e4e;
+    --bg: rgb(0, 0, 0);
     --bg-card: #111111;
     --bg-hover: #9f9f9f;
     --text-base: #f5f5f5;
@@ -132,7 +132,7 @@
   --text-base: #f5f5f5;
   --text-muted: #a3a3a3;
   --border: oklch(1 0 0 / 10%);
-  --background: oklch(35.618% 0.00004 271.152);
+  --background: oklch(0% 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);
   --card-foreground: oklch(0.985 0 0);
