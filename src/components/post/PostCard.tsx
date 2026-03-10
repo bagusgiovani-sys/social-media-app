@@ -10,42 +10,37 @@ import { Heart, MessageCircle, Send, Bookmark } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
 
-interface Props {
-  post: Post;
-}
-
+interface Props { post: Post; }
 const CAPTION_LIMIT = 100;
 
 export default function PostCard({ post }: Props) {
   const router = useRouter();
   const { isAuthenticated } = useAppSelector((s) => s.auth);
+  const savedPostIds = useAppSelector((s) => s.saves.savedPostIds);
+  const likedPostIds = useAppSelector((s) => s.likes.likedPostIds);
   const { mutate: toggleLike, isPending: likePending } = useToggleLike(post.id);
   const { mutate: toggleSave, isPending: savePending } = useToggleSave(post.id);
   const [expanded, setExpanded] = useState(false);
 
+  const isSaved = savedPostIds.includes(post.id) || (post.savedByMe ?? false);
+  const isLiked = likedPostIds.includes(post.id) || (post.likedByMe ?? false);
+
   const handleLike = () => {
     if (!isAuthenticated) return router.push("/login");
-    if (!likePending) toggleLike(post.likedByMe ?? false);
+    if (!likePending) toggleLike(isLiked);
   };
 
   const handleSave = () => {
     if (!isAuthenticated) return router.push("/login");
-    if (!savePending) toggleSave(post.savedByMe ?? false);
+    if (!savePending) toggleSave(isSaved);
   };
 
   const isLong = (post.caption?.length ?? 0) > CAPTION_LIMIT;
-  const displayCaption =
-    isLong && !expanded
-      ? post.caption!.slice(0, CAPTION_LIMIT) + "..."
-      : post.caption;
+  const displayCaption = isLong && !expanded ? post.caption!.slice(0, CAPTION_LIMIT) + "..." : post.caption;
 
   return (
     <div className="w-full rounded-2xl overflow-hidden border border-zinc-800 bg-[#000000]">
-      {/* Author row */}
-      <div
-        className="flex items-center gap-3 px-4 py-3 cursor-pointer"
-        onClick={() => router.push(`/profile/${post.author?.username ?? ""}`)}
-      >
+      <div className="flex items-center gap-3 px-4 py-3 cursor-pointer" onClick={() => router.push(`/profile/${post.author?.username ?? ""}`)}>
         <div className="w-9 h-9 rounded-full overflow-hidden bg-zinc-800 shrink-0">
           {post.author?.avatarUrl ? (
             <img src={post.author.avatarUrl} alt={post.author.name} className="w-full h-full object-cover" />
@@ -61,73 +56,35 @@ export default function PostCard({ post }: Props) {
         </div>
       </div>
 
-      {/* Image */}
-      <div
-        className="w-full cursor-pointer aspect-square"
-        onClick={() => router.push(`/posts/${post.id}`)}
-      >
-        <img
-          src={post.imageUrl}
-          alt={post.caption ?? "Post"}
-          className="w-full h-full object-cover"
-        />
+      <div className="w-full cursor-pointer aspect-square" onClick={() => router.push(`/posts/${post.id}`)}>
+        <img src={post.imageUrl} alt={post.caption ?? "Post"} className="w-full h-full object-cover" />
       </div>
 
-      {/* Actions row */}
       <div className="flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-4">
-          {/* Like */}
-          <motion.button
-            whileTap={{ scale: 0.85 }}
-            onClick={handleLike}
-            disabled={likePending}
-            className="flex items-center gap-1.5"
-          >
-            <Heart
-              size={20}
-              className={post.likedByMe ? "fill-[#D9206E] text-[#D9206E]" : "text-white"}
-            />
+          <motion.button whileTap={{ scale: 0.85 }} onClick={handleLike} disabled={likePending} className="flex items-center gap-1.5">
+            <Heart size={20} className={isLiked ? "fill-[#D9206E] text-[#D9206E]" : "text-white"} />
             <span className="text-white text-sm">{post.likeCount ?? 0}</span>
           </motion.button>
-
-          {/* Comment */}
-          <button
-            className="flex items-center gap-1.5"
-            onClick={() => router.push(`/posts/${post.id}`)}
-          >
+          <button className="flex items-center gap-1.5" onClick={() => router.push(`/posts/${post.id}`)}>
             <MessageCircle size={20} className="text-white" />
             <span className="text-white text-sm">{post.commentCount ?? 0}</span>
           </button>
-
-          {/* Share */}
           <button className="flex items-center gap-1.5">
             <Send size={20} className="text-white" />
           </button>
         </div>
-
-        {/* Bookmark */}
-        <motion.button
-          whileTap={{ scale: 0.85 }}
-          onClick={handleSave}
-          disabled={savePending}
-        >
-          <Bookmark
-            size={20}
-            className={post.savedByMe ? "fill-white text-white" : "text-white"}
-          />
+        <motion.button whileTap={{ scale: 0.85 }} onClick={handleSave} disabled={savePending}>
+          <Bookmark size={20} className={isSaved ? "fill-white text-white" : "text-white"} />
         </motion.button>
       </div>
 
-      {/* Caption */}
       {post.caption && (
         <div className="px-4 pb-4">
           <span className="text-white text-sm font-bold mr-1.5">{post.author?.name}</span>
           <span className="text-white text-sm">{displayCaption}</span>
           {isLong && (
-            <button
-              onClick={() => setExpanded((v) => !v)}
-              className="text-sm font-semibold ml-1 text-[#7C3AED]"
-            >
+            <button onClick={() => setExpanded((v) => !v)} className="text-sm font-semibold ml-1 text-[#7C3AED]">
               {expanded ? "Show Less" : "Show More"}
             </button>
           )}

@@ -108,7 +108,7 @@ export default function Navbar() {
 
           {/* PC: Search bar */}
           <motion.div
-            className="hidden md:flex items-center gap-2 rounded-full px-4 py-2 left-1/2 bg-[#1a1a1a] overflow-hidden"
+            className="hidden md:flex items-center gap-2 rounded-full ml-5 px-4 py-2  bg-[#1a1a1a] overflow-hidden"
             animate={{ width: desktopSearchOpen ? "280px" : "140px" }}
             transition={{ duration: 0.25, ease: "easeInOut" }}
             whileHover={{ boxShadow: "0 0 0 1.5px rgba(124,58,237,0.5), 0 0 12px rgba(124,58,237,0.2)" }}

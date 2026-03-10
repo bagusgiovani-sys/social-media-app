@@ -23,6 +23,8 @@ const ease = [0.22, 1, 0.36, 1] as const;
 export default function PostDetail({ post, onClose }: Props) {
   const router = useRouter();
   const { user, isAuthenticated } = useAppSelector((s) => s.auth);
+  const savedPostIds = useAppSelector((s) => s.saves.savedPostIds);
+  const likedPostIds = useAppSelector((s) => s.likes.likedPostIds);
   const { mutate: toggleLike, isPending: likePending } = useToggleLike(post.id);
   const { mutate: toggleSave, isPending: savePending } = useToggleSave(post.id);
   const { mutate: deletePost, isPending: deletePending } = useDeletePost();
@@ -32,14 +34,18 @@ export default function PostDetail({ post, onClose }: Props) {
   const [showMenu, setShowMenu] = useState(false);
   const isOwner = user?.id === p.author?.id;
 
+  // Read from Redux for accurate visual state (backend bug: GET /api/posts/:id always returns false)
+  const isLiked = likedPostIds.includes(post.id) || (p.likedByMe ?? false);
+  const isSaved = savedPostIds.includes(post.id) || (p.savedByMe ?? false);
+
   const handleLike = () => {
     if (!isAuthenticated) return router.push("/login");
-    if (!likePending) toggleLike(p.likedByMe ?? false);
+    if (!likePending) toggleLike(isLiked);
   };
 
   const handleSave = () => {
     if (!isAuthenticated) return router.push("/login");
-    if (!savePending) toggleSave(p.savedByMe ?? false);
+    if (!savePending) toggleSave(isSaved);
   };
 
   const handleDelete = () => {
@@ -143,7 +149,7 @@ export default function PostDetail({ post, onClose }: Props) {
           >
             <div className="flex items-center gap-4">
               <motion.button whileTap={{ scale: 0.85 }} onClick={handleLike} disabled={likePending} className="flex items-center gap-1.5">
-                <Heart size={20} className={p.likedByMe ? "fill-[#D9206E] text-[#D9206E]" : "text-white"} />
+                <Heart size={20} className={isLiked ? "fill-[#D9206E] text-[#D9206E]" : "text-white"} />
                 <span className="text-white text-sm">{p.likeCount ?? 0}</span>
               </motion.button>
               <button className="flex items-center gap-1.5">
@@ -155,7 +161,7 @@ export default function PostDetail({ post, onClose }: Props) {
               </button>
             </div>
             <motion.button whileTap={{ scale: 0.85 }} onClick={handleSave} disabled={savePending}>
-              <Bookmark size={20} className={p.savedByMe ? "fill-white text-white" : "text-white"} />
+              <Bookmark size={20} className={isSaved ? "fill-white text-white" : "text-white"} />
             </motion.button>
           </motion.div>
         </motion.div>
@@ -202,7 +208,7 @@ export default function PostDetail({ post, onClose }: Props) {
           >
             <div className="flex items-center gap-4">
               <motion.button whileTap={{ scale: 0.85 }} onClick={handleLike} disabled={likePending} className="flex items-center gap-1.5">
-                <Heart size={20} className={p.likedByMe ? "fill-[#D9206E] text-[#D9206E]" : "text-white"} />
+                <Heart size={20} className={isLiked ? "fill-[#D9206E] text-[#D9206E]" : "text-white"} />
                 <span className="text-white text-sm">{p.likeCount ?? 0}</span>
               </motion.button>
               <button className="flex items-center gap-1.5">
@@ -214,7 +220,7 @@ export default function PostDetail({ post, onClose }: Props) {
               </button>
             </div>
             <motion.button whileTap={{ scale: 0.85 }} onClick={handleSave} disabled={savePending}>
-              <Bookmark size={20} className={p.savedByMe ? "fill-white text-white" : "text-white"} />
+              <Bookmark size={20} className={isSaved ? "fill-white text-white" : "text-white"} />
             </motion.button>
           </motion.div>
         </motion.div>

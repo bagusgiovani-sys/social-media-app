@@ -37,6 +37,7 @@ export function usePost(id: number, initialData?: any) {
     },
     enabled: !!id,
     initialData,
+    initialDataUpdatedAt:0,
   });
 }
 

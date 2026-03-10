@@ -9,4 +9,7 @@ export const likesApi = {
 
   getPostLikes: (id: number, page = 1, limit = 20) =>
     api.get(`/api/posts/${id}/likes`, { params: { page, limit } }),
+
+  getMyLikes: (page = 1, limit = 20) =>
+    api.get(`/api/me/likes`, { params: { page, limit } }),
 };
