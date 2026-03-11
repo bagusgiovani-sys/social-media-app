@@ -39,7 +39,7 @@ export default function LikedByModal({ postId, open, onClose }: Props) {
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", stiffness: 380, damping: 38 }}
-            className="md:hidden fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl overflow-hidden bg-[#111111]"
+            className="md:hidden block fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-t-2xl overflow-hidden bg-[#111111]"
             style={{ maxHeight: "80vh" }}
           >
             <ModalContent users={users} isLoading={isLoading} me={me} onClose={onClose} router={router} />
