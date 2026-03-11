@@ -1,6 +1,6 @@
 "use client";
 
-import { useUserProfile, useUserPosts, useUserLikes } from "@/hooks/useUsers";
+import { useUserProfile, useUserPosts } from "@/hooks/useUsers";
 import { use } from "react";
 import { useAppSelector } from "@/store";
 import { useState } from "react";
@@ -20,7 +20,6 @@ export default function PublicProfilePage({ params }: Props) {
   const { user: me } = useAppSelector((s) => s.auth);
   const { data: profileData, isLoading } = useUserProfile(username);
   const { data: postsData } = useUserPosts(username);
-  const { data: likesData } = useUserLikes(username);
   const [followModal, setFollowModal] = useState<FollowModal>(null);
 
   if (isLoading) {
@@ -49,7 +48,6 @@ export default function PublicProfilePage({ params }: Props) {
   };
 
   const posts = Array.isArray(postsData) ? postsData : [];
-  const likedPosts = Array.isArray(likesData) ? likesData : [];
   const isMyProfile = me?.username === username;
 
   return (
@@ -79,8 +77,8 @@ export default function PublicProfilePage({ params }: Props) {
       >
         <ProfileTabs
           posts={posts}
-          likedPosts={likedPosts}
           isMyProfile={isMyProfile}
+          username={username}
         />
       </motion.div>
 

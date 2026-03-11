@@ -83,7 +83,7 @@ export default function PostCard({ post }: Props) {
             <MessageCircle size={20} className="text-white" />
             <span className="text-white text-sm">{post.commentCount ?? 0}</span>
           </button>
-          <motion.button whileTap={{ scale: 0.85 }} onClick={handleShare} className="flex items-center gap-1.5">
+          <motion.button whileTap={{ scale: 0.85 }} onClick={handleShare}>
             <Send size={20} className="text-white" />
           </motion.button>
         </div>

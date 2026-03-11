@@ -4,6 +4,7 @@ import { useToggleFollow } from "@/hooks/useFollow";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Send, CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 
 interface Profile {
   id: number;
@@ -37,6 +38,18 @@ export default function ProfileHeader({
 }: Props) {
   const router = useRouter();
   const { mutate: toggleFollow, isPending } = useToggleFollow(profile.username);
+
+  const handleShare = async () => {
+    const url = `${window.location.origin}/profile/${profile.username}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: profile.name, text: `Check out ${profile.name}'s profile on Sociality`, url });
+      } catch {}
+    } else {
+      await navigator.clipboard.writeText(url);
+      toast.success("Link copied to clipboard!");
+    }
+  };
 
   const stats = [
     { label: "Post", value: profile.postsCount ?? 0, onClick: undefined },
@@ -102,9 +115,13 @@ export default function ProfileHeader({
               </motion.button>
             )}
 
-            <button className="w-9 h-9 flex items-center justify-center rounded-full border border-zinc-700 text-white hover:border-zinc-500 transition-colors">
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={handleShare}
+              className="w-9 h-9 flex items-center justify-center rounded-full border border-zinc-700 text-white hover:border-zinc-500 transition-colors"
+            >
               <Send size={15} />
-            </button>
+            </motion.button>
           </div>
         </div>
 

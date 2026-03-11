@@ -1,6 +1,7 @@
 "use client";
 
-import { useMe, useMyPosts, useMySaved, useMyLikes } from "@/hooks/useMe";
+import { useMe } from "@/hooks/useMe";
+import { useMyPosts } from "@/hooks/useMe";
 import { useState } from "react";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import ProfileTabs from "@/components/profile/ProfileTabs";
@@ -14,8 +15,6 @@ type FollowModal = "followers" | "following" | null;
 export default function MePage() {
   const { data: profile, isLoading } = useMe();
   const { data: postsData } = useMyPosts();
-  const { data: savedData } = useMySaved();
-  const { data: likedData } = useMyLikes();
   const [editOpen, setEditOpen] = useState(false);
   const [followModal, setFollowModal] = useState<FollowModal>(null);
   const [createOpen, setCreateOpen] = useState(false);
@@ -30,8 +29,6 @@ export default function MePage() {
   }
 
   const posts = Array.isArray(postsData) ? postsData : [];
-  const savedPosts = Array.isArray(savedData) ? savedData : [];
-  const likedPosts = Array.isArray(likedData) ? likedData : [];
 
   const p = profile.profile ?? profile;
   const normalizedProfile = {
@@ -75,8 +72,6 @@ export default function MePage() {
       >
         <ProfileTabs
           posts={posts}
-          savedPosts={savedPosts}
-          likedPosts={likedPosts}
           isMyProfile
           onUploadClick={() => setCreateOpen(true)}
           activeTab={activeTab}

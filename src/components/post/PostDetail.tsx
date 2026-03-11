@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import dayjs from "@/lib/dayjs";
 import { Heart, MessageCircle, Send, Bookmark, X, MoreHorizontal } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import CommentSection from "@/components/comments/CommentSection";
 import LikedByModal from "@/components/modals/LikedByModal";
 import { toast } from "sonner";
@@ -34,6 +34,9 @@ export default function PostDetail({ post, onClose }: Props) {
   const [likesOpen, setLikesOpen] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const isOwner = user?.id === p.author?.id;
+
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const didLongPress = useRef(false);
 
   const isLiked = likedPostIds.includes(post.id) || (p.likedByMe ?? false);
   const isSaved = savedPostIds.includes(post.id) || (p.savedByMe ?? false);
@@ -69,11 +72,22 @@ export default function PostDetail({ post, onClose }: Props) {
 
   const handleClose = () => onClose ? onClose() : router.back();
 
-  const ShareButton = () => (
-    <motion.button whileTap={{ scale: 0.85 }} onClick={handleShare} className="flex items-center gap-1.5">
-      <Send size={20} className="text-white" />
-    </motion.button>
-  );
+  const onLongPressStart = () => {
+    didLongPress.current = false;
+    longPressTimer.current = setTimeout(() => {
+      didLongPress.current = true;
+      setLikesOpen(true);
+    }, 500);
+  };
+
+  const onLongPressEnd = () => {
+    if (longPressTimer.current) clearTimeout(longPressTimer.current);
+  };
+
+  const onLikeTap = () => {
+    if (!didLongPress.current) handleLike();
+    didLongPress.current = false;
+  };
 
   return (
     <>
@@ -153,26 +167,32 @@ export default function PostDetail({ post, onClose }: Props) {
             {p.caption && <p className="text-white text-sm leading-relaxed">{p.caption}</p>}
           </motion.div>
 
-          <div className="flex-1 overflow-hidden flex flex-col">
+          <div className="flex-1 overflow-hidden flex flex-col min-h-0">
             <CommentSection postId={post.id} />
           </div>
 
           <motion.div
-            className="flex items-center justify-between px-5 py-3 border-t border-white/[0.08]"
+            className="flex items-center justify-between px-5 py-3 border-t border-white/[0.08] shrink-0"
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.28, duration: 0.35, ease }}
           >
             <div className="flex items-center gap-4">
-              <motion.button whileTap={{ scale: 0.85 }} onClick={handleLike} disabled={likePending} className="flex items-center gap-1.5">
-                <Heart size={20} className={isLiked ? "fill-[#D9206E] text-[#D9206E]" : "text-white"} />
-                <span className="text-white text-sm">{p.likeCount ?? 0}</span>
-              </motion.button>
+              <div className="flex items-center gap-1.5">
+                <motion.button whileTap={{ scale: 0.85 }} onClick={handleLike} disabled={likePending}>
+                  <Heart size={20} className={isLiked ? "fill-[#D9206E] text-[#D9206E]" : "text-white"} />
+                </motion.button>
+                <button onClick={() => setLikesOpen(true)} className="text-white text-sm hover:underline">
+                  {p.likeCount ?? 0}
+                </button>
+              </div>
               <button className="flex items-center gap-1.5">
                 <MessageCircle size={20} className="text-white" />
                 <span className="text-white text-sm">{p.commentCount ?? 0}</span>
               </button>
-              <ShareButton />
+              <motion.button whileTap={{ scale: 0.85 }} onClick={handleShare}>
+                <Send size={20} className="text-white" />
+              </motion.button>
             </div>
             <motion.button whileTap={{ scale: 0.85 }} onClick={handleSave} disabled={savePending}>
               <Bookmark size={20} className={isSaved ? "fill-white text-white" : "text-white"} />
@@ -221,15 +241,23 @@ export default function PostDetail({ post, onClose }: Props) {
             transition={{ delay: 0.18, duration: 0.3 }}
           >
             <div className="flex items-center gap-4">
-              <motion.button whileTap={{ scale: 0.85 }} onClick={handleLike} disabled={likePending} className="flex items-center gap-1.5">
+              <div
+                className="flex items-center gap-1.5 select-none"
+                onPointerDown={onLongPressStart}
+                onPointerUp={() => { onLongPressEnd(); onLikeTap(); }}
+                onPointerLeave={onLongPressEnd}
+                onPointerCancel={onLongPressEnd}
+              >
                 <Heart size={20} className={isLiked ? "fill-[#D9206E] text-[#D9206E]" : "text-white"} />
                 <span className="text-white text-sm">{p.likeCount ?? 0}</span>
-              </motion.button>
+              </div>
               <button className="flex items-center gap-1.5">
                 <MessageCircle size={20} className="text-white" />
                 <span className="text-white text-sm">{p.commentCount ?? 0}</span>
               </button>
-              <ShareButton />
+              <motion.button whileTap={{ scale: 0.85 }} onClick={handleShare}>
+                <Send size={20} className="text-white" />
+              </motion.button>
             </div>
             <motion.button whileTap={{ scale: 0.85 }} onClick={handleSave} disabled={savePending}>
               <Bookmark size={20} className={isSaved ? "fill-white text-white" : "text-white"} />
@@ -243,13 +271,15 @@ export default function PostDetail({ post, onClose }: Props) {
           transition={{ type: "spring", stiffness: 380, damping: 38 }}
           className="rounded-t-2xl flex flex-col bg-[#111111] min-h-[50vh]"
         >
-          <div className="flex items-center justify-between px-5 pt-4 pb-2">
+          <div className="flex items-center justify-between px-5 pt-4 pb-2 shrink-0">
             <div />
             <button onClick={handleClose} className="text-zinc-400 hover:text-white transition-colors">
               <X size={20} />
             </button>
           </div>
-          <CommentSection postId={post.id} />
+          <div className="flex-1 flex flex-col min-h-0">
+            <CommentSection postId={post.id} />
+          </div>
         </motion.div>
       </div>
 

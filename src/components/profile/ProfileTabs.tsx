@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { LayoutGrid, Bookmark, Heart } from "lucide-react";
 import PostGrid from "@/components/post/PostGrid";
-import { motion } from "framer-motion";
+import { useMyLikes, useMySaved } from "@/hooks/useMe";
+import { useUserLikes } from "@/hooks/useUsers";
 
 interface Post {
   id: number;
@@ -13,17 +14,24 @@ interface Post {
 
 interface Props {
   posts: Post[];
-  savedPosts?: Post[];
-  likedPosts?: Post[];
   isMyProfile?: boolean;
+  username?: string; // required when isMyProfile is false
   onUploadClick?: () => void;
   activeTab?: "gallery" | "saved" | "liked";
   onTabChange?: (tab: "gallery" | "saved" | "liked") => void;
 }
 
-export default function ProfileTabs({ posts, savedPosts, likedPosts, isMyProfile, onUploadClick, activeTab, onTabChange }: Props) {
+export default function ProfileTabs({
+  posts,
+  isMyProfile,
+  username,
+  onUploadClick,
+  activeTab,
+  onTabChange,
+}: Props) {
   const [internalTab, setInternalTab] = useState<"gallery" | "saved" | "liked">("gallery");
   const tab = activeTab ?? internalTab;
+
   const setTab = (t: "gallery" | "saved" | "liked") => {
     setInternalTab(t);
     onTabChange?.(t);
@@ -40,42 +48,90 @@ export default function ProfileTabs({ posts, savedPosts, likedPosts, isMyProfile
         { key: "liked", label: "Liked", icon: Heart },
       ];
 
-  const activeData =
-    tab === "gallery" ? posts : tab === "saved" ? (savedPosts ?? []) : (likedPosts ?? []);
+  const activeIndex = tabs.findIndex((t) => t.key === tab);
 
   return (
     <div className="max-w-2xl md:mx-auto">
-      <div className="flex border-b border-white/[0.08]">
+      {/* Tab bar */}
+      <div className="relative flex border-b border-white/[0.08]">
         {tabs.map(({ key, label, icon: Icon }) => (
           <button
             key={key}
             onClick={() => setTab(key as any)}
-            className={`relative flex-1 flex items-center justify-center gap-2 py-3 text-sm font-semibold transition-colors ${tab === key ? "text-white" : "text-[#a3a3a3]"}`}
+            className={`relative flex-1 flex items-center justify-center gap-2 py-3 text-sm font-semibold transition-colors ${
+              tab === key ? "text-white" : "text-[#a3a3a3]"
+            }`}
           >
             <Icon size={16} />
             {label}
-            {tab === key && (
-              <motion.div
-                layoutId="profile-tab-indicator"
-                className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full bg-white"
-              />
-            )}
           </button>
         ))}
+        {/* Sliding underline — pure CSS, no layout recalc */}
+        <span
+          className="absolute bottom-0 h-0.5 rounded-full bg-white transition-transform duration-200 ease-out"
+          style={{
+            width: `${100 / tabs.length}%`,
+            transform: `translateX(${activeIndex * 100}%)`,
+          }}
+        />
       </div>
 
       <div className="mt-0.5">
-        {activeData.length === 0 ? (
-          <EmptyState isMyProfile={!!isMyProfile} tab={tab} onUploadClick={onUploadClick} />
-        ) : (
-          <PostGrid posts={activeData} />
+        {tab === "gallery" && (
+          posts.length === 0
+            ? <EmptyState isMyProfile={!!isMyProfile} tab="gallery" onUploadClick={onUploadClick} />
+            : <PostGrid posts={posts} />
+        )}
+        {tab === "saved" && isMyProfile && <SavedTab />}
+        {tab === "liked" && (
+          isMyProfile
+            ? <MyLikedTab />
+            : <UserLikedTab username={username ?? ""} />
         )}
       </div>
     </div>
   );
 }
 
-function EmptyState({ isMyProfile, tab, onUploadClick }: {
+// ── Lazy sub-tabs — only mount & fetch when tab is active ──────────
+
+function SavedTab() {
+  const { data, isLoading } = useMySaved();
+  const posts = Array.isArray(data) ? data : [];
+  if (isLoading) return <TabSpinner />;
+  if (posts.length === 0) return <EmptyState isMyProfile tab="saved" />;
+  return <PostGrid posts={posts} />;
+}
+
+function MyLikedTab() {
+  const { data, isLoading } = useMyLikes();
+  const posts = Array.isArray(data) ? data : [];
+  if (isLoading) return <TabSpinner />;
+  if (posts.length === 0) return <EmptyState isMyProfile tab="liked" />;
+  return <PostGrid posts={posts} />;
+}
+
+function UserLikedTab({ username }: { username: string }) {
+  const { data, isLoading } = useUserLikes(username);
+  const posts = Array.isArray(data) ? data : [];
+  if (isLoading) return <TabSpinner />;
+  if (posts.length === 0) return <EmptyState isMyProfile={false} tab="liked" />;
+  return <PostGrid posts={posts} />;
+}
+
+function TabSpinner() {
+  return (
+    <div className="flex justify-center py-16">
+      <div className="w-6 h-6 rounded-full border-2 border-violet-600 border-t-transparent animate-spin" />
+    </div>
+  );
+}
+
+function EmptyState({
+  isMyProfile,
+  tab,
+  onUploadClick,
+}: {
   isMyProfile: boolean;
   tab: string;
   onUploadClick?: () => void;
@@ -88,13 +144,12 @@ function EmptyState({ isMyProfile, tab, onUploadClick }: {
           <p className="text-zinc-500 text-sm leading-relaxed mb-6">
             Share your first post and let the world see your moments, passions, and memories. Make this space truly yours.
           </p>
-          <motion.button
-            whileTap={{ scale: 0.97 }}
+          <button
             onClick={onUploadClick}
-            className="px-8 py-3 rounded-full text-white text-sm font-bold bg-[#7C3AED]"
+            className="px-8 py-3 rounded-full text-white text-sm font-bold bg-[#7C3AED] active:scale-95 transition-transform"
           >
             Upload My First Post
-          </motion.button>
+          </button>
         </>
       ) : (
         <p className="text-zinc-500 text-sm">No posts yet.</p>

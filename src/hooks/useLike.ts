@@ -6,7 +6,7 @@ import { addLike, removeLike } from "@/store/slices/likesSlice";
 import { useAppDispatch } from "@/store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export function usePostLikes(postId: number) {
+export function usePostLikes(postId: number, enabled = false) {
   return useQuery({
     queryKey: ["posts", postId, "likes"],
     queryFn: async () => {
@@ -14,7 +14,7 @@ export function usePostLikes(postId: number) {
       const inner = res.data?.data;
       return Array.isArray(inner?.users) ? inner.users : [];
     },
-    enabled: !!postId,
+    enabled: !!postId && enabled,
   });
 }
 
