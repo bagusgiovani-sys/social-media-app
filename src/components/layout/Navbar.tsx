@@ -117,17 +117,24 @@ export default function Navbar() {
       >
         <div className="mx-auto grid grid-cols-[auto_1fr_auto] h-14 max-w-7xl items-center gap-4 px-4 md:px-6">
 
-          {/* Logo */}
+          {/* Logo — shrinks to icon-only when mobile search is open */}
           <motion.div
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
+            className="overflow-hidden"
           >
             <Link href="/feed" className="flex items-center gap-2 shrink-0">
-              <svg width="22" height="22" viewBox="0 0 26 26" fill="none">
+              <svg width="22" height="22" viewBox="0 0 26 26" fill="none" className="shrink-0">
                 <path d="M13 1L14.8 10.2L24 13L14.8 15.8L13 25L11.2 15.8L2 13L11.2 10.2Z" fill="white" />
               </svg>
-              <span className="text-white text-lg font-semibold tracking-tight">Sociality</span>
+              <motion.span
+                animate={{ width: mobileSearchOpen ? 0 : "auto", opacity: mobileSearchOpen ? 0 : 1 }}
+                transition={{ duration: 0.2, ease: "easeInOut" }}
+                className="text-white text-lg font-semibold tracking-tight overflow-hidden whitespace-nowrap md:block"
+              >
+                Sociality
+              </motion.span>
             </Link>
           </motion.div>
 
