@@ -26,6 +26,8 @@ export default function PostGrid({ posts }: Props) {
           <img
             src={post.imageUrl}
             alt={post.caption ?? "Post"}
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover hover:opacity-90 transition-opacity"
           />
         </div>

@@ -14,6 +14,7 @@ export default function Navbar() {
   const router = useRouter();
   const { user, isAuthenticated } = useAppSelector((s) => s.auth);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [mobileDropdownOpen, setMobileDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
@@ -21,8 +22,8 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileQuery, setMobileQuery] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const mobileDropdownRef = useRef<HTMLDivElement>(null);
   const mobileInputRef = useRef<HTMLInputElement>(null);
-  const desktopInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 10);
@@ -32,6 +33,7 @@ export default function Navbar() {
 
   const handleLogout = () => {
     setDropdownOpen(false);
+    setMobileDropdownOpen(false);
     dispatch(logout());
     router.replace("/login");
   };
@@ -60,16 +62,15 @@ export default function Navbar() {
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setDropdownOpen(false);
-      }
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setDropdownOpen(false);
+      if (mobileDropdownRef.current && !mobileDropdownRef.current.contains(e.target as Node)) setMobileDropdownOpen(false);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const Avatar = () => (
-    <div className="rounded-full overflow-hidden bg-zinc-800 shrink-0 cursor-pointer w-8 h-8">
+  const Avatar = ({ size = 8 }: { size?: number }) => (
+    <div className={`rounded-full overflow-hidden bg-zinc-800 shrink-0 cursor-pointer w-${size} h-${size}`}>
       {user?.avatarUrl ? (
         <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
       ) : (
@@ -80,17 +81,41 @@ export default function Navbar() {
     </div>
   );
 
+  const DropdownMenu = () => (
+    <motion.div
+      initial={{ opacity: 0, y: -6, scale: 0.97 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -6, scale: 0.97 }}
+      transition={{ duration: 0.15 }}
+      className="absolute right-0 top-12 w-44 rounded-2xl overflow-hidden shadow-xl border border-white/8 bg-[#111111] z-50"
+    >
+      <button
+        onClick={() => { setDropdownOpen(false); setMobileDropdownOpen(false); router.push("/me"); }}
+        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-white hover:bg-zinc-800 transition-colors"
+      >
+        <User size={15} className="text-zinc-400" /> My Profile
+      </button>
+      <div className="border-t border-white/8" />
+      <button
+        onClick={handleLogout}
+        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-accent-red hover:bg-zinc-800 transition-colors"
+      >
+        <LogOut size={15} /> Logout
+      </button>
+    </motion.div>
+  );
+
   return (
     <>
       <motion.nav
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
-        className={`sticky top-0 z-50 w-full border-b border-white/[0.08] transition-all duration-300 ${
+        className={`sticky top-0 z-50 w-full border-b border-white/8 transition-all duration-300 ${
           scrolled ? "bg-zinc-600/10 backdrop-blur-xl" : "bg-zinc-800/50"
         }`}
       >
-        <div className="mx-auto flex h-14 max-w-screen-xl items-center justify-between px-4 md:px-6">
+        <div className="mx-auto grid grid-cols-[auto_1fr_auto] h-14 max-w-7xl items-center gap-4 px-4 md:px-6">
 
           {/* Logo */}
           <motion.div
@@ -108,14 +133,13 @@ export default function Navbar() {
 
           {/* PC: Search bar */}
           <motion.div
-            className="hidden md:flex items-center gap-2 rounded-full ml-5 px-4 py-2  bg-[#1a1a1a] overflow-hidden"
-            animate={{ width: desktopSearchOpen ? "280px" : "140px" }}
+            className="hidden md:flex items-center gap-2 rounded-full px-4 py-2 bg-[#1a1a1a] border border-zinc-500/10 overflow-hidden justify-self-center"
+            animate={{ width: desktopSearchOpen ? "320px" : "140px" }}
             transition={{ duration: 0.25, ease: "easeInOut" }}
-            whileHover={{ boxShadow: "0 0 0 1.5px rgba(124,58,237,0.5), 0 0 12px rgba(124,58,237,0.2)" }}
+            whileHover={{ boxShadow: "0 0 0 1.5px #7C3AED, 0 0 12px #7C3AED40" }}
           >
-            <Search size={15} className="text-zinc-500 shrink-0" />
+            <Search size={15} className="text-zinc-400 shrink-0" />
             <input
-              ref={desktopInputRef}
               type="text"
               placeholder="Search..."
               value={searchQuery}
@@ -123,13 +147,10 @@ export default function Navbar() {
               onKeyDown={handleDesktopSearch}
               onFocus={() => setDesktopSearchOpen(true)}
               onBlur={() => { if (!searchQuery) setDesktopSearchOpen(false); }}
-              className="w-full bg-transparent text-sm text-white placeholder:text-zinc-600 outline-none"
+              className="w-full bg-transparent text-sm text-white placeholder:text-zinc-400 outline-none"
             />
             {searchQuery && (
-              <button
-                onClick={() => { setSearchQuery(""); setDesktopSearchOpen(false); }}
-                className="text-zinc-500 hover:text-white transition-colors shrink-0"
-              >
+              <button onClick={() => { setSearchQuery(""); setDesktopSearchOpen(false); }} className="text-zinc-500 hover:text-white transition-colors shrink-0">
                 <X size={14} />
               </button>
             )}
@@ -139,54 +160,24 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             {isAuthenticated && user ? (
               <div className="relative" ref={dropdownRef}>
-                <button
-                  onClick={() => setDropdownOpen((v) => !v)}
-                  className="flex items-center gap-2.5 hover:opacity-80 transition-opacity cursor-pointer"
-                >
+                <button onClick={() => setDropdownOpen((v) => !v)} className="flex items-center gap-2.5 hover:opacity-80 transition-opacity cursor-pointer">
                   <Avatar />
                   <span className="text-white text-sm font-medium">{user.name}</span>
                 </button>
-
                 <AnimatePresence>
-                  {dropdownOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -6, scale: 0.97 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -6, scale: 0.97 }}
-                      transition={{ duration: 0.15 }}
-                      className="absolute right-0 top-12 w-44 rounded-2xl overflow-hidden shadow-xl border border-white/[0.08] bg-[#111111]"
-                    >
-                      <button
-                        onClick={() => { setDropdownOpen(false); router.push("/me"); }}
-                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-white hover:bg-zinc-800 transition-colors"
-                      >
-                        <User size={15} className="text-zinc-400" /> My Profile
-                      </button>
-                      <div className="border-t border-white/[0.08]" />
-                      <button
-                        onClick={handleLogout}
-                        className="flex items-center gap-3 w-full px-4 py-3 text-sm text-[#D9206E] hover:bg-zinc-800 transition-colors"
-                      >
-                        <LogOut size={15} /> Logout
-                      </button>
-                    </motion.div>
-                  )}
+                  {dropdownOpen && <DropdownMenu />}
                 </AnimatePresence>
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <Link href="/login" className="px-5 py-1.5 rounded-full text-sm font-medium text-white border border-zinc-700 hover:border-zinc-500 transition-colors">
-                  Login
-                </Link>
-                <Link href="/register" className="px-5 py-1.5 rounded-full text-sm font-bold text-white hover:opacity-90 transition-opacity bg-[#7C3AED]">
-                  Register
-                </Link>
+                <Link href="/login" className="px-5 py-1.5 rounded-full text-sm font-medium text-white border border-zinc-700 hover:border-zinc-500 transition-colors">Login</Link>
+                <Link href="/register" className="px-5 py-1.5 rounded-full text-sm font-bold text-white hover:opacity-90 transition-opacity bg-[#7C3AED]">Register</Link>
               </div>
             )}
           </div>
 
           {/* Mobile: Right side */}
-          <div className="flex md:hidden items-center gap-3">
+          <div className="flex md:hidden items-center gap-3 col-span-2 justify-end">
             <div className="flex items-center justify-end">
               <AnimatePresence>
                 {mobileSearchOpen && (
@@ -209,7 +200,6 @@ export default function Navbar() {
                   </motion.div>
                 )}
               </AnimatePresence>
-
               <button
                 onClick={() => {
                   if (mobileSearchOpen) { setMobileSearchOpen(false); setMobileQuery(""); }
@@ -232,9 +222,14 @@ export default function Navbar() {
             </div>
 
             {isAuthenticated && user ? (
-              <motion.button whileHover={{ scale: 1.05 }} onClick={() => router.push("/me")} className="cursor-pointer">
-                <Avatar />
-              </motion.button>
+              <div className="relative" ref={mobileDropdownRef}>
+                <motion.button whileHover={{ scale: 1.05 }} onClick={() => setMobileDropdownOpen((v) => !v)} className="cursor-pointer">
+                  <Avatar />
+                </motion.button>
+                <AnimatePresence>
+                  {mobileDropdownOpen && <DropdownMenu />}
+                </AnimatePresence>
+              </div>
             ) : (
               <Link href="/login" className="text-white text-sm font-medium">Login</Link>
             )}

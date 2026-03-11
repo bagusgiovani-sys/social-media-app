@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import CommentSection from "@/components/comments/CommentSection";
 import LikedByModal from "@/components/modals/LikedByModal";
+import { toast } from "sonner";
 
 interface Props {
   post: Post;
@@ -34,7 +35,6 @@ export default function PostDetail({ post, onClose }: Props) {
   const [showMenu, setShowMenu] = useState(false);
   const isOwner = user?.id === p.author?.id;
 
-  // Read from Redux for accurate visual state (backend bug: GET /api/posts/:id always returns false)
   const isLiked = likedPostIds.includes(post.id) || (p.likedByMe ?? false);
   const isSaved = savedPostIds.includes(post.id) || (p.savedByMe ?? false);
 
@@ -48,6 +48,18 @@ export default function PostDetail({ post, onClose }: Props) {
     if (!savePending) toggleSave(isSaved);
   };
 
+  const handleShare = async () => {
+    const url = `${window.location.origin}/posts/${post.id}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: p.author?.name ?? "Sociality", text: p.caption ?? "Check out this post!", url });
+      } catch {}
+    } else {
+      await navigator.clipboard.writeText(url);
+      toast.success("Link copied to clipboard!");
+    }
+  };
+
   const handleDelete = () => {
     if (!confirm("Delete this post?")) return;
     deletePost(post.id, {
@@ -56,6 +68,12 @@ export default function PostDetail({ post, onClose }: Props) {
   };
 
   const handleClose = () => onClose ? onClose() : router.back();
+
+  const ShareButton = () => (
+    <motion.button whileTap={{ scale: 0.85 }} onClick={handleShare} className="flex items-center gap-1.5">
+      <Send size={20} className="text-white" />
+    </motion.button>
+  );
 
   return (
     <>
@@ -66,7 +84,6 @@ export default function PostDetail({ post, onClose }: Props) {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.4, ease }}
       >
-        {/* Left: image */}
         <motion.div
           className="flex-1 bg-black flex items-center justify-center"
           initial={{ opacity: 0 }}
@@ -76,7 +93,6 @@ export default function PostDetail({ post, onClose }: Props) {
           <img src={p.imageUrl} alt={p.caption ?? "Post"} className="w-full h-full object-cover" />
         </motion.div>
 
-        {/* Right: details + comments */}
         <motion.div
           className="w-[380px] shrink-0 flex flex-col bg-[#111111]"
           initial={{ opacity: 0, x: 20 }}
@@ -156,9 +172,7 @@ export default function PostDetail({ post, onClose }: Props) {
                 <MessageCircle size={20} className="text-white" />
                 <span className="text-white text-sm">{p.commentCount ?? 0}</span>
               </button>
-              <button className="flex items-center gap-1.5">
-                <Send size={20} className="text-white" />
-              </button>
+              <ShareButton />
             </div>
             <motion.button whileTap={{ scale: 0.85 }} onClick={handleSave} disabled={savePending}>
               <Bookmark size={20} className={isSaved ? "fill-white text-white" : "text-white"} />
@@ -215,9 +229,7 @@ export default function PostDetail({ post, onClose }: Props) {
                 <MessageCircle size={20} className="text-white" />
                 <span className="text-white text-sm">{p.commentCount ?? 0}</span>
               </button>
-              <button className="flex items-center gap-1.5">
-                <Send size={20} className="text-white" />
-              </button>
+              <ShareButton />
             </div>
             <motion.button whileTap={{ scale: 0.85 }} onClick={handleSave} disabled={savePending}>
               <Bookmark size={20} className={isSaved ? "fill-white text-white" : "text-white"} />

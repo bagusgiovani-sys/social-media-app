@@ -9,6 +9,7 @@ import dayjs from "@/lib/dayjs";
 import { Heart, MessageCircle, Send, Bookmark } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 
 interface Props { post: Post; }
 const CAPTION_LIMIT = 100;
@@ -35,6 +36,18 @@ export default function PostCard({ post }: Props) {
     if (!savePending) toggleSave(isSaved);
   };
 
+  const handleShare = async () => {
+    const url = `${window.location.origin}/posts/${post.id}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: post.author?.name ?? "Sociality", text: post.caption ?? "Check out this post!", url });
+      } catch {}
+    } else {
+      await navigator.clipboard.writeText(url);
+      toast.success("Link copied to clipboard!");
+    }
+  };
+
   const isLong = (post.caption?.length ?? 0) > CAPTION_LIMIT;
   const displayCaption = isLong && !expanded ? post.caption!.slice(0, CAPTION_LIMIT) + "..." : post.caption;
 
@@ -57,7 +70,7 @@ export default function PostCard({ post }: Props) {
       </div>
 
       <div className="w-full cursor-pointer aspect-square" onClick={() => router.push(`/posts/${post.id}`)}>
-        <img src={post.imageUrl} alt={post.caption ?? "Post"} className="w-full h-full object-cover" />
+        <img src={post.imageUrl} alt={post.caption ?? "Post"} loading="lazy" decoding="async" className="w-full h-full object-cover" />
       </div>
 
       <div className="flex items-center justify-between px-4 py-3">
@@ -70,9 +83,9 @@ export default function PostCard({ post }: Props) {
             <MessageCircle size={20} className="text-white" />
             <span className="text-white text-sm">{post.commentCount ?? 0}</span>
           </button>
-          <button className="flex items-center gap-1.5">
+          <motion.button whileTap={{ scale: 0.85 }} onClick={handleShare} className="flex items-center gap-1.5">
             <Send size={20} className="text-white" />
-          </button>
+          </motion.button>
         </div>
         <motion.button whileTap={{ scale: 0.85 }} onClick={handleSave} disabled={savePending}>
           <Bookmark size={20} className={isSaved ? "fill-white text-white" : "text-white"} />
