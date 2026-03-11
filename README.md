@@ -64,18 +64,12 @@ src/
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/yourusername/sociality.git
-cd sociality
 
 # 2. Install dependencies
 npm install
 
-# 3. Create environment file
-cp .env.example .env.local
-# Add your API base URL:
-# NEXT_PUBLIC_API_BASE_URL=https://your-api-url.com
 
-# 4. Run development server
+# 3. Run development server
 npm run dev
 ```
 
